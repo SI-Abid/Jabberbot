@@ -6,6 +6,7 @@ from keep_alive import keep_alive
 from replit import db
 
 token = os.environ['TOKEN']
+prefix = '$'
 # ki holo
 # list = []
 
@@ -40,15 +41,18 @@ async def on_message(message):
   if message.author == bot.user:
     return
 
-  msg = message.content.lower()
+  if not message.content.startswith(prefix):
+    return
+
+  msg = message.content.lower()[1:]
 
   if any (word in msg for word in db['greet']):
     await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
   
-  if msg.startswith('$inspire'):
+  if msg.startswith('inspire'):
     await message.channel.send(get_quote())
 
-  if msg.startswith('$new'):
+  if msg.startswith('new'):
     words = msg.split(' ',1)[1].split(' ')
     for word in words:
       add_key(word)
