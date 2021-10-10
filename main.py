@@ -65,7 +65,7 @@ async def on_message(message):
     words = msg.split(' ',1)[1].split(' ')
     for word in words:
       add_key(word)
-    await message.channel.send('Database update\n{0}'.format(db['greet'].value))
+    await message.channel.send('Database updated\n{0}'.format(db['greet'].value))
 
   if msg.startswith('del'):
     list = []
@@ -73,7 +73,7 @@ async def on_message(message):
       idx = int(msg.split(' ')[1])
       del_key(idx-1)
       list = db['greet']
-    await message.channel.send(list)
+    await message.channel.send('Database updated\n'+list)
 
   if msg.startswith('respond'):
     value = msg.split(' ',1)
