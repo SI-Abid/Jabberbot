@@ -42,7 +42,7 @@ async def on_message(message):
 
   msg = message.content.lower()
 
-  if msg.startswith('$hello'):
+  if any (word in msg for word in db['greet']):
     await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
   
   if msg.startswith('$inspire'):
