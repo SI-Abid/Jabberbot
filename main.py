@@ -73,7 +73,7 @@ async def on_message(message):
       idx = int(msg.split(' ')[1])
       del_key(idx-1)
       list = db['greet']
-    await message.channel.send('Database updated\n'+list)
+    await message.channel.send('Database updated\n'+list.value)
 
   if msg.startswith('respond'):
     value = msg.split(' ',1)
