@@ -31,25 +31,39 @@ def del_key(idx):
     del list[idx]
     db['greet'] = list
 
-
 def get_quote():
   res = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(res.text)
   quote = json_data[0]['q'] + " -*" + json_data[0]['a'] + '*'
   return quote
 
-def update():
+def cfupdate(day):
+  days = day*(-86400)
   res = requests.get("https://codeforces.com/api/contest.list?gym=false")
   results = json.loads(res.text)
   # print(results) # this is a dictionary
   ret = []
   for contest in results['result']: # each element is also a dictionary
-    if contest['phase'] == 'BEFORE':
+    crts = contest['relativeTimeSeconds']
+    if crts >= days and crts < 0:
       name = contest['name']
       starttime = datetime.fromtimestamp(contest['startTimeSeconds']).strftime("Start: %a, %d %b %Y %r")
-      lefttime = datetime.fromtimestamp(contest['relativeTimeSeconds']*(-1)).strftime("Time left: %d days, %H:%M:%S")
+      lefttime = ''
+      if crts >= -86400:
+        lefttime = datetime.fromtimestamp(crts*(-1)).strftime("Time left: %H:%M:%S")
+      else:
+        lefttime = datetime.fromtimestamp(crts*(-1)-86400).strftime("Time left: %d days, %H:%M:%S")
       ret.append(name+'\n'+starttime+'\n'+lefttime)
   return ret
+
+def add_db(key:str,values:list):
+  if key in db.keys():
+    value = db[key]
+    for item in values:
+      value.append(item)
+    db[key]=value
+  else:
+    db[key] = values
 
 @bot.event
 async def on_ready():
@@ -77,9 +91,13 @@ async def on_message(message):
 
   if msg.startswith('new'):
     words = msg.split(' ',1)[1].split(' ')
-    for word in words:
-      add_key(word)
-    await message.channel.send('Database updated\n{0}'.format(db['greet'].value))
+    # for word in words:
+    #   add_key(word)
+    if len(words) > 1:
+      add_db('greet',words)
+      await message.channel.send('Database updated\n{0}'.format(db['greet'].value))
+    else:
+      await message.channel.send('Not enough arguments.')
 
   if msg.startswith('del'):
     list = []
@@ -100,15 +118,28 @@ async def on_message(message):
       await message.channel.send("Responding is off.")
   
   if msg.startswith('cfup'):
+    arg = msg.split(' ')
+    day = 1
+    if len(arg) > 1:
+      day = int(arg[1])
     roles = ':calendar:'
     if 'pingable' in db.keys():
       for role in db['pingable']:
         roles+=' '+role
     await message.channel.send(roles)
     await message.channel.send('**{0.author.name}** requested **Codeforces update**'.format(message))
-    for block in update():
+    for block in cfupdate(day):
       await message.channel.send('```'+block+'```')
 
+  if msg.startswith('add'):
+    args = msg.split(' ')
+    if len(args) < 3:
+      await message.channel.send('Invalid format\n*$add <key> [<value1> <value2> ...]*')
+    else:
+      key = args[1]
+      values = args[2:]
+      add_db(key,values)
+      await message.channel.send('Database updated by **{0.author.name}**'.format(message))
 
 keep_alive()
 bot.run(token)
