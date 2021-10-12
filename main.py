@@ -4,6 +4,7 @@ import requests
 import json
 from keep_alive import keep_alive
 from replit import db
+from datetime import datetime
 
 bot = discord.Client()
 
@@ -37,6 +38,18 @@ def get_quote():
   quote = json_data[0]['q'] + " -*" + json_data[0]['a'] + '*'
   return quote
 
+def update():
+  res = requests.get("https://codeforces.com/api/contest.list?gym=false")
+  results = json.loads(res.text)
+  # print(results) # this is a dictionary
+  ret = []
+  for contest in results['result']: # each element is also a dictionary
+    if contest['phase'] == 'BEFORE':
+      name = contest['name']
+      starttime = datetime.fromtimestamp(contest['startTimeSeconds']).strftime("Start: %a, %d %b %Y %r")
+      lefttime = datetime.fromtimestamp(contest['relativeTimeSeconds']*(-1)).strftime("Time left: %d days, %H:%M:%S")
+      ret.append(name+'\n'+starttime+'\n'+lefttime)
+  return ret
 
 @bot.event
 async def on_ready():
@@ -54,6 +67,7 @@ async def on_message(message):
     return
 
   msg = message.content.lower()[1:]
+  print(msg)
 
   if db['responding'] and any (word in msg for word in db['greet']):
     await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
@@ -84,7 +98,17 @@ async def on_message(message):
     else:
       db["responding"] = False
       await message.channel.send("Responding is off.")
-    
+  
+  if msg.startswith('cfup'):
+    roles = ':calendar:'
+    if 'pingable' in db.keys():
+      for role in db['pingable']:
+        roles+=' '+role
+    await message.channel.send(roles)
+    await message.channel.send('**{0.author.name}** requested **Codeforces update**'.format(message))
+    for block in update():
+      await message.channel.send('```'+block+'```')
+
 
 keep_alive()
 bot.run(token)
