@@ -67,6 +67,32 @@ def add_db(key:str,values:list):
   else:
     db[key] = values
 
+def coderun(lang, code, data):
+  program = {
+    "script": code,
+    "language": lang,
+    "stdin": data,
+    "versionIndex": "0",
+    "clientId": "eeac8d0afed4e96cfac5429d26575139",
+    "clientSecret":"cd9e96caaabe7439e5002d96b407599d9b2d6cd6a98f34eaa715f02f2e022f2f"
+  }
+  # program['script']=code
+  # program['language']=lang
+  # program['stdin']=data
+  # jp = json.dumps(program)
+  # print(program)
+  # print(jp)
+  # print(json.loads(jp)['script'])
+  res = requests.post(url="https://api.jdoodle.com/v1/execute",json=program)
+  output = json.loads(res.text)
+  # print(output)
+  if output["statusCode"] == 200:
+    obj = [output["output"],output["memory"],output["cpuTime"]]
+    return obj
+  else:
+    return "Invalid language"
+
+
 @bot.event
 async def on_ready():
   print('Hello I am online')# me too
@@ -79,14 +105,15 @@ async def on_message(message):
   if message.author == bot.user:
     return
 
+  msg = message.content.lower()[1:]
+  
+  if db['responding'] and any (word in message.content for word in db['greet']):
+    await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
+  
   if not message.content.startswith(prefix):
     return
 
-  msg = message.content.lower()[1:]
   print(msg)
-
-  if db['responding'] and any (word in msg for word in db['greet']):
-    await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
   
   if msg.startswith('inspire'):
     await message.channel.send(get_quote())
@@ -142,6 +169,27 @@ async def on_message(message):
       values = args[2:]
       add_db(key,values)
       await message.channel.send('Database updated by **{0.author.name}**'.format(message))
+
+  if msg.startswith('run'):
+    args = message.content.split('```')
+    # print(len(args))
+    # for each in args:
+    #   print("*"+each+"#")
+    lang = args[0].split(' ')[1].lower()[:-1] #exclude tailing newline
+    if len(args) < 2:
+      # send reaction
+      await message.channel.send('**Pardon me. What do you intend to run**')
+    code , data = args[1], ""
+    if len(args) >= 4:
+      data = args[3][1:-1] # exclude leading and tailing newline
+    # for i in range(len(args)):
+    #   print(i,args[i])
+    # print(lang,code,data)
+    res = coderun(lang,code,data)
+    if type(res) == str:
+      await message.channel.send('`'+res+'`')
+    else:
+      await message.channel.send('`Memory: {1}byte\t\tTime: {2}s` ```{0}```'.format(res[0],res[1],res[2]))
 
 keep_alive()
 bot.run(token)
