@@ -92,6 +92,36 @@ def coderun(lang, code, data):
   else:
     return "Invalid language"
 
+def show_list(user):
+  li = "**"+user.split('#')[0]+"\'s todo list**\n```markdown\n"
+  if user in db.keys():
+    # print(db[user])
+    for item in db[user]:
+      li+=item+'\n'
+    li+='```'
+  else:
+    li='```Your TODO list is empty```'
+  return li
+
+def check_list(user, idx:int):
+  if user in db.keys():
+    if idx < len(db[user]):
+      if not db[user][idx].startswith('>'):
+        db[user][idx] = '> '+db[user][idx]
+
+def del_list(user):
+  if user in db.keys():
+    del db[user]
+
+def add_list(user, tasks:list):
+  todo = []
+  if user in db.keys():
+    todo = db[user]
+  for task in tasks:
+    if task not in todo:
+      todo.append(str(len(todo)+1)+' '+task)
+  db[user]=todo
+
 
 @bot.event
 async def on_ready():
@@ -122,7 +152,7 @@ async def on_message(message):
     words = msg.split(' ',1)[1].split(' ')
     # for word in words:
     #   add_key(word)
-    if len(words) > 1:
+    if len(words) >= 1:
       add_db('greet',words)
       await message.channel.send('Database updated\n{0}'.format(db['greet'].value))
     else:
@@ -139,7 +169,7 @@ async def on_message(message):
   if msg.startswith('respond'):
     value = msg.split(' ',1)
 
-    if len(value)>1 and value[1] == "true":
+    if len(value)>1 and (value[1] == "true" or value[1] == "on"):
       db["responding"] = True
       await message.channel.send("Responding is on.")
     else:
@@ -148,7 +178,7 @@ async def on_message(message):
   
   if msg.startswith('cfup'):
     arg = msg.split(' ')
-    day = 1
+    day = 5
     if len(arg) > 1:
       day = int(arg[1])
     roles = ':calendar:'
@@ -190,6 +220,39 @@ async def on_message(message):
       await message.channel.send('`'+res+'`')
     else:
       await message.channel.send('`Memory: {1}byte\t\tTime: {2}s` ```{0}```'.format(res[0],res[1],res[2]))
+
+  if msg.startswith('todo'):
+    args = msg.split('\n')
+    user = str(message.author)
+    cmd = ''
+    try:
+      cmd = args[0].split(' ')[1]
+    except:
+      await message.channel.send(show_list(user))
+  
+    if len(args) == 1:
+      #show list
+      # print(user,type(user))
+      if cmd == 'clear':
+        del_list(user)
+        await message.channel.send("**Your list has been cleared**")
+      elif cmd == 'check':
+        arg = args[0].split('check')
+        if len(arg) < 2:
+          await message.channel.send('**Too few arguments**')
+        # [optional] check all
+        else:
+          for x in arg[1].split():
+          # idx = int(arg[2])-1
+            check_list(user,int(x)-1)
+  
+    else:
+      if cmd == 'add':
+        dolist = msg.split('\n')[1:] # excluding first line of input
+        add_list(user,dolist)
+        await message.channel.send("**Tasks added to you list**")
+
+
 
 keep_alive()
 bot.run(token)
