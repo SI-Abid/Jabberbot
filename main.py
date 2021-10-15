@@ -122,6 +122,8 @@ def add_list(user, tasks:list):
       todo.append(str(len(todo)+1)+' '+task)
   db[user]=todo
 
+def mdstr(s: str) -> str:
+  return "```markdown\n"+s+"```"
 
 @bot.event
 async def on_ready():
@@ -219,7 +221,7 @@ async def on_message(message):
     if type(res) == str:
       await message.channel.send('`'+res+'`')
     else:
-      await message.channel.send('`Memory: {1}byte\t\tTime: {2}s` ```{0}```'.format(res[0],res[1],res[2]))
+      await message.channel.send('`Memory: {1}byte\t\tTime: {2}s`\n{0}'.format(mdstr(res[0]),res[1],res[2]))
 
   if msg.startswith('todo'):
     args = msg.split('\n')
@@ -245,6 +247,7 @@ async def on_message(message):
           for x in arg[1].split():
           # idx = int(arg[2])-1
             check_list(user,int(x)-1)
+          await message.channel.send("**Checked**")
   
     else:
       if cmd == 'add':
@@ -253,9 +256,7 @@ async def on_message(message):
         await message.channel.send("**Tasks added to you list**")
 
 
-
 keep_alive()
 bot.run(token)
-
 
 # list = ['hi', 'hlw', 'hello', 'hola']
