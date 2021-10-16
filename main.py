@@ -8,8 +8,8 @@ from datetime import datetime
 
 bot = discord.Client()
 
-token = os.environ['TOKEN']
-prefix = '$'
+token = os.environ['TOKEN2']
+prefix = ';'
 # ki holo
 # list = []
 
@@ -255,6 +255,14 @@ async def on_message(message):
         add_list(user,dolist)
         await message.channel.send("**Tasks added to you list**")
 
+  if msg.startswith('send'):
+    args = msg.split(' ')
+    print(args[1], type(args[1]))
+    person = message.mentions[0]
+    text = msg.split(' ',2)[2]
+    print(person)
+    print(text)
+    await person.send(text)
 
 keep_alive()
 bot.run(token)
