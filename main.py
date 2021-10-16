@@ -264,6 +264,28 @@ async def on_message(message):
     print(text)
     await person.send(text)
 
+  # if msg.startswith('setp'):
+  if msg.startswith('post'):
+    try:
+      ctx = message.content.split(';post ')[1]
+      print(ctx)
+      if len(ctx) < 1:
+        raise Exception('Not enough argument')
+      post = {
+        'author': {'username': message.author.name},
+        'body': ctx
+      }
+      if 'posts' in db.keys():
+        posts = db['posts']
+        posts.append(post)
+        db['posts']=posts
+      else:
+        db['posts']=[post]
+      await message.channel.send("**Your post has been published**")
+    except:
+      await message.channel.send("**Invalid format**")
+        
+
 keep_alive()
 bot.run(token)
 
