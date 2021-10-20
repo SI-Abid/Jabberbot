@@ -2,8 +2,7 @@ from flask import Flask, render_template, redirect, request
 from threading import Thread
 from replit import db
 from uuid import uuid4
-import requests
-import json
+from utils import coderun
 
 URL = "http://scratch.si_abid.repl.co/bin"
 
@@ -62,22 +61,3 @@ def run():
 def keep_alive():
   t = Thread(target=run)
   t.start()
-
-def coderun(lang, code, data):
-  program = {
-    "script": code,
-    "language": lang,
-    "stdin": data,
-    "versionIndex": "0",
-    "clientId": "eeac8d0afed4e96cfac5429d26575139",
-    "clientSecret":"cd9e96caaabe7439e5002d96b407599d9b2d6cd6a98f34eaa715f02f2e022f2f"
-  }
-
-  res = requests.post(url="https://api.jdoodle.com/v1/execute",json=program)
-  output = json.loads(res.text)
-  # print(output)
-  if output["statusCode"] == 200:
-    obj = [output["output"],output["memory"],output["cpuTime"]]
-    return obj
-  else:
-    return "Invalid language"
