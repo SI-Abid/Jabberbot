@@ -9,6 +9,8 @@ python = "^3.8"
 discord = "^1.7.3"
 Flask = "^2.0.2"
 replit = "^3.2.4"
+WTForms = "^2.3.3"
+Flask-WTF = "^0.15.1"
 
 [tool.poetry.dev-dependencies]
 

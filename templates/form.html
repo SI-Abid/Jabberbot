@@ -1,0 +1,42 @@
+<html>
+
+<head>
+	<title>My Bin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style type="text/css">
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 12px;
+		}
+
+		#code {
+			width: 90vw;
+			height: 80vh;
+			border: 1px solid #000;
+			overflow: auto;
+			margin: 5px 0px;
+			padding: 10px;
+			background-color: #fff;
+			font-size: 14px;
+			position: absolute;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>My Bin</h1>
+	<p>The most simple way to share your script</p>
+  <form action="http://scratch.si_abid.repl.co/mybin" method="post">
+  <input type="submit" value="Create new paste">
+  {% if link %}
+  <a href="{{link}}">Your paste</a>
+  {% endif %}
+  <table>
+    <td id="code">
+      <input name="code" type=text>
+    </td>
+  </table>
+  </form>
+  <br>
+</body>
+</html>

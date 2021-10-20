@@ -2,7 +2,7 @@ import discord
 import os
 import requests
 import json
-from keep_alive import keep_alive
+from server import keep_alive
 from replit import db
 from datetime import datetime
 
@@ -10,6 +10,7 @@ bot = discord.Client()
 
 token = os.environ['TOKEN2']
 prefix = ';'
+bin_link = 'http://scratch.si_abid.repl.co/bin'
 # ki holo
 # list = []
 
@@ -76,13 +77,7 @@ def coderun(lang, code, data):
     "clientId": "eeac8d0afed4e96cfac5429d26575139",
     "clientSecret":"cd9e96caaabe7439e5002d96b407599d9b2d6cd6a98f34eaa715f02f2e022f2f"
   }
-  # program['script']=code
-  # program['language']=lang
-  # program['stdin']=data
-  # jp = json.dumps(program)
-  # print(program)
-  # print(jp)
-  # print(json.loads(jp)['script'])
+
   res = requests.post(url="https://api.jdoodle.com/v1/execute",json=program)
   output = json.loads(res.text)
   # print(output)
@@ -139,13 +134,13 @@ async def on_message(message):
 
   msg = message.content.lower()[1:]
   
-  if db['responding'] and any (word in message.content for word in db['greet']):
+  if db['responding'] and any (word in message.content.split(' ') for word in db['greet']):
     await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
   
+  print(message.content)
+
   if not message.content.startswith(prefix):
     return
-
-  print(msg)
   
   if msg.startswith('inspire'):
     await message.channel.send(get_quote())
@@ -221,7 +216,10 @@ async def on_message(message):
     if type(res) == str:
       await message.channel.send('`'+res+'`')
     else:
-      await message.channel.send('`Memory: {1}byte\t\tTime: {2}s`\n{0}'.format(mdstr(res[0]),res[1],res[2]))
+      out, mem, sec = res
+      if len(out)>1999:
+        await message.channel.send('**The output of you code is too big.**\nPlease use the broswer mode at {}'.format(bin_link))
+      await message.channel.send('`Memory: {1}byte\t\tTime: {2}s`\n{0}'.format(mdstr(out),mem,sec))
 
   if msg.startswith('todo'):
     args = msg.split('\n')
@@ -268,7 +266,7 @@ async def on_message(message):
   if msg.startswith('post'):
     try:
       ctx = message.content.split(';post ')[1]
-      print(ctx)
+      # print(ctx)
       if len(ctx) < 1:
         raise Exception('Not enough argument')
       post = {
@@ -284,7 +282,8 @@ async def on_message(message):
       await message.channel.send("**Your post has been published**")
     except:
       await message.channel.send("**Invalid format**")
-        
+
+
 
 keep_alive()
 bot.run(token)

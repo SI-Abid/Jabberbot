@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{ user }}'s Bin</title>
+  </head>
+  <body>
+    <div>
+      Jabber's Blog:
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('bin') }}">My Bin</a>
+    </div>
+    <hr>
+    <h2>Posted by {{user}}</h2>
+    <pre>{{code}}
+    </pre>
+    <br>
+    {% if output %}
+    <h3>Output:</h3>
+    <pre>{{output}}
+    </pre>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,12 @@
+Saiham
+import itertools
+
+ranks = list(range(2,11)) + ['J','Q','K','A']
+ranks = [str(rank) for rank in ranks]
+
+suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
+deck = [card for card in itertools.product(ranks, suits)]
+
+hands = [hand for hand in itertools.combinations(deck, 5)]
+
+print("The number of 5-card poker hands is {}.".format(len(hands)))
