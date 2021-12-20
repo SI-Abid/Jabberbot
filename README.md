@@ -7,4 +7,5 @@
   
 ### Image  
 
-  ![Bot's Profile](https://cdn.discordapp.com/avatars/711514506978918440/3fcbfe6b9eb8ff4ca342bed9a33ff0e2.webp?size=80)
+  ![Profile](https://cdn.discordapp.com/avatars/711514506978918440/3fcbfe6b9eb8ff4ca342bed9a33ff0e2.webp?size=80)
+  ![About](https://cdn.discordapp.com/attachments/817061505802960936/922404647635935322/unknown.png)
