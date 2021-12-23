@@ -21,6 +21,8 @@ if 'responding' not in db.keys():
 async def on_ready():
   print('Hello I am online')# me too
   print('Connected as {0.user}'.format(bot))
+  game = discord.Game("with the API")
+  await bot.change_presence(activity=game)
 
 
 @bot.event
@@ -31,8 +33,8 @@ async def on_message(message):
 
   msg = message.content.lower()[1:]
   
-  if db['responding'] and any (word in message.content.split(' ') for word in db['greet']):
-    await message.channel.send("Hello World\nWhat's up **{0.author.name}** :smile:".format(message))
+  if db['responding'] and any (word in message.content.lower().split(' ') for word in db['greet']):
+    await message.reply("What's up **{0.author.name}** :smile:".format(message))
   
   print(message.content)
 
@@ -40,7 +42,12 @@ async def on_message(message):
     return
   
   if msg.startswith('inspire'):
-    await message.channel.send(get_quote())
+    users = message.mentions
+    if len(users)>0:
+      for user in users:
+        await user.send(get_quote())
+    else:
+      await message.reply(get_quote())
 
   if msg.startswith('new'):
     words = msg.split(' ',1)[1].split(' ')
@@ -50,6 +57,7 @@ async def on_message(message):
       add_db('greet',words)
       await message.channel.send('Database updated\n{0}'.format(db['greet'].value))
     else:
+      await message.add_reaction('❌')
       await message.channel.send('Not enough arguments.')
 
   if msg.startswith('del'):
@@ -87,13 +95,69 @@ async def on_message(message):
   if msg.startswith('add'):
     args = msg.split(' ')
     if len(args) < 3:
-      await message.channel.send('Invalid format\n*$add <key> [<value1> <value2> ...]*')
+      await message.add_reaction('❌')
+      await message.reply('Invalid format\n*;add <key> [<value1> <value2> ...]*')
     else:
       key = args[1]
       values = args[2:]
       add_db(key,values)
       await message.channel.send('Database updated by **{0.author.name}**'.format(message))
 
+  if msg.startswith('erase'):
+    args = msg.split(' ')
+    if len(args)>1:
+      key=args[1]
+      del_list(key)
+      await message.channel.send('Database updated by **{0.author.name}**'.format(message))
+    else:
+      await message.add_reaction('❌')
+      await message.reply('Invalid format\n*;erase <key>*')
+
+  if msg.startswith('clear'):
+    try:
+      lim = int(msg.split(' ')[1])
+      if lim>100:
+        await message.reply('**You cannot bulk delete more than 100 messages**')
+        return
+      msgs = await message.channel.history(limit=lim).flatten()
+      await message.channel.delete_messages(msgs)
+    except:
+      await message.reply('*Something bad happened*')
+
+  # if msg.startswith('purge'):
+  #   def is_me(m):
+  #     m.author==bot.user
+  #   deleted = await message.channel.purge(limit=100, check=is_me)
+  #   await message.channel.send('Deleted {} message(s)'.format(len(deleted)))
+    
+  if msg.startswith('spam'): #SECRET
+    _, lim, ctx = msg.split(' ',2)
+    for _ in range(int(lim)):
+      await message.channel.send(ctx)
+
+  if msg.startswith('serverip'):
+    if 'serverip' in db.keys():
+      await message.channel.send(db['serverip'])
+    elif len(msg)>len('serverip'):
+      db['serverip']=msg.split(' ')[1]
+      await message.add_reaction('✅')
+    else:
+      await message.add_reaction('❓')
+      
+
+  if msg.startswith('get'):
+    args = msg.split(' ')
+    if len(args)>1:
+      key=args[1]
+      if key in db.keys():
+        await message.reply(mdstr(db[key]))
+      else:
+        await message.add_reaction('❓')
+        await message.reply('404 Not found')
+    else:
+      await message.add_reaction('❌')        
+      await message.reply('Invalid format\n*;get <key>*')
+  
   if msg.startswith('run'):
     args = message.content.split('```')
     # print(len(args))
@@ -102,6 +166,7 @@ async def on_message(message):
     lang = args[0].split(' ')[1].lower()[:-1] #exclude tailing newline
     if len(args) < 2:
       # send reaction
+      await message.add_reaction('❌')
       await message.channel.send('**Pardon me. What do you intend to run**')
     code , data = args[1], ""
     if len(args) >= 4:
@@ -114,7 +179,7 @@ async def on_message(message):
       await message.channel.send('`'+res+'`')
     else:
       out, mem, sec = res
-      if len(out)>1999:
+      if len(out)>1900:
         await message.channel.send('**The output of you code is too big.**\nPlease use the broswer mode at {}'.format(bin_link))
       await message.channel.send('`Memory: {1}byte\t\tTime: {2}s`\n{0}'.format(mdstr(out),mem,sec))
 

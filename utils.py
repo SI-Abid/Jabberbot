@@ -36,7 +36,7 @@ def cfupdate(day):
       name = contest['name']
       if not name.isascii(): # if non-english name found
         continue
-      starttime = datetime.fromtimestamp(contest['startTimeSeconds']).strftime("Start: %a, %d %b %Y %r")
+      starttime = datetime.fromtimestamp(contest['startTimeSeconds']+21600).strftime("Start: %a, %d %b %Y %r")
       lefttime = ''
       if crts >= -86400:
         lefttime = datetime.fromtimestamp(crts*(-1)).strftime("Time left: %H:%M:%S")
