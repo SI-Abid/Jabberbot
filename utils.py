@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import datetime
 from replit import db
+import os
 
 def add_key(word):
   if 'greet' in db.keys():
@@ -60,8 +61,8 @@ def coderun(lang, code, data):
     "language": lang,
     "stdin": data,
     "versionIndex": "0",
-    "clientId": "eeac8d0afed4e96cfac5429d26575139",
-    "clientSecret":"cd9e96caaabe7439e5002d96b407599d9b2d6cd6a98f34eaa715f02f2e022f2f"
+    "clientId": os.environ['cID'],
+    "clientSecret": os.environ['cSec']
   }
 
   res = requests.post(url="https://api.jdoodle.com/v1/execute",json=program)

@@ -1,0 +1,32 @@
+iftekhar
+String name = nameField.getText();
+            String email = emailField.getText();
+            String mobile = mobileField.getText();
+            String password = passField.getText();
+
+            String userNameRegEx = "^[a-zA-Z._ ]+$";
+            String passRegEx = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$?&_\\-]).{6,20}";
+            String emailRegEx = "^[a-z0-9_]+@[a-z]+.+[a-z]+$";
+            String mobileRegEx = "(\\+88)?-?01[3-9]\\d{8}";
+
+            if(!Pattern.matches(userNameRegEx, name)){
+                JOptionPane.showMessageDialog(null, "Invalid User Name\n");
+            }else if(!Pattern.matches(emailRegEx, email)){
+                System.out.println(email);
+                JOptionPane.showMessageDialog(null, "Invalid E-mail!");
+            }else if(!Pattern.matches(mobileRegEx, mobile)){
+                JOptionPane.showMessageDialog(null, "Invalid Mobile Number\n");
+            }else if(!Pattern.matches(passRegEx, password)){
+                System.out.println(password);
+                JOptionPane.showMessageDialog(null, "Invalid Password\nYour password must contain\n1-digit\n1-special char\n1-upper case\n1-lower case");
+            }else {
+                String sqlQuery = "INSERT INTO `user`(`Name`, `Email`, `Mobile`, `Password`) "
+                        + "VALUES ('"+name+"','"+email+"','"+mobile+"','"+password+"')";
+                DataBase db = new DataBase();
+                try {
+                    db.Insert(sqlQuery);
+                    JOptionPane.showMessageDialog(frame,"Registration confirmed");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
